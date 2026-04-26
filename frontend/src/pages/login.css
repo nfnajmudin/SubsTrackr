@@ -1,6 +1,12 @@
 body {
   margin: 0;
-  background: #0b0c2a; 
+  font-family: 'Inter', sans-serif;
+  background: #0b0c2a;
+}
+
+.login-container {
+  display: flex;
+  height: 100vh;
 }
 
 .login-container {
@@ -47,8 +53,11 @@ body {
 
 /* RIGHT SIDE */
 .right {
-  flex: 1;
-  background: #0b0c2a;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;  
+  padding-top: 120px;
+  background: #0b0c2a;       
 }
 
 .brand {
@@ -59,7 +68,6 @@ body {
   margin-left: -25px; 
 }
 
-
 .logo-img {
   width: 85px;
   height: 85px;
@@ -69,3 +77,119 @@ body {
   font-size: 45px;
   font-weight: 600;
 }
+
+.login-card {
+  background: #fff;
+  padding: 2rem 1.5rem;
+  border-radius: 0.5rem;
+  width: 380px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.form-title {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1.8rem;
+}
+
+.social-login {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #D5CBFF;
+  background: #F9F8FF;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.login-container .social-login {
+    display: flex;
+    gap: 1.31rem;
+}
+
+.social-login .social-button{
+    display: flex;
+    width: 100%;
+    gap: 0.81rem;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.75rem 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-login .social-button .social-icon {
+    width: 27px;
+}
+.separator {
+  position: relative;
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.separator span {
+  background: #fff;
+  padding: 0 10px;
+  color: #6652BE;
+}
+
+.separator::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #bfb3f2;
+  z-index: -1;
+}
+
+.login-button {
+  width: 100%;
+  height: 50px;
+  background: #5F41E4;
+  color: white;
+  border: none;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.input-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-wrapper i {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a395e0;
+}
+
+.input-wrapper i:not(.eye-icon) {
+  left: 10px;
+}
+
+.eye-icon {
+  right: 10px;
+  cursor: pointer;
+}
+
+.input-field {
+  width: 79%;
+  height: 45px;
+  padding: 0 40px; /* space for icons */
+  border: 1px solid #bfb3f2;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
