@@ -3,17 +3,23 @@ import SocialLogin from "../component/SocialLogin";
 import InputField from "../component/InputField";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../config/firebase";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
 const handleGoogleLogin = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
 
-    console.log("User:", result.user);
+    console.log(result.user.email);
+    console.log(result.user.displayName);
+
+    navigate("/home"); 
+
   } catch (error) {
-    console.error("Error:", error);
+    console.error(error);
   }
 };
+const navigate = useNavigate();
 
   return (
     <div className="login-container">
