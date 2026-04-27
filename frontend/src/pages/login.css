@@ -129,6 +129,19 @@ body {
 .social-login .social-button .social-icon {
     width: 27px;
 }
+
+.social-button:hover {
+  background: #eae6ff; /* slightly darker when hover*/
+}
+
+.social-icon {
+  transition: 0.2s ease;
+}
+
+.social-button:hover {
+  transform: translateY(-2px);
+}
+
 .separator {
   position: relative;
   margin: 1.5rem 0;
