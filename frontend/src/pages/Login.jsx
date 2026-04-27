@@ -1,8 +1,20 @@
 import "./login.css";
 import SocialLogin from "../component/SocialLogin";
 import InputField from "../component/InputField";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../config/firebase";
 
 const Login = () => {
+const handleGoogleLogin = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+
+    console.log("User:", result.user);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
   return (
     <div className="login-container">
 
@@ -32,7 +44,7 @@ const Login = () => {
 
             <h2 className="form-title">Log in with</h2>
 
-            <SocialLogin />          
+            <SocialLogin onGoogleClick={handleGoogleLogin} />         
 
             <p className="separator"><span>or</span></p>
 

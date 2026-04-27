@@ -1,7 +1,7 @@
-const SocialLogin = () => {
+const SocialLogin = ({ onGoogleClick }) => {
   return (
     <div className="social-login">
-      <button className="social-button">
+      <button className="social-button" onClick={onGoogleClick}>
         <img src="google.svg" alt="Google" className="social-icon" />
         Google
       </button>
