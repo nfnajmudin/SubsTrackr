@@ -4,22 +4,37 @@ import InputField from "../component/InputField";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
+import { login } from "../services/authService";
+import { useState } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
-const handleGoogleLogin = async () => {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
 
-    console.log(result.user.email);
-    console.log(result.user.displayName);
+  // STATE at top 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    navigate("/home"); 
+  // Google login
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log(result.user.email);
+      navigate("/home");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+  // Email login
+  const handleEmailLogin = async (e) => {
+    e.preventDefault(); // prevent page reload
+    try {
+      await login(email, password);
+      navigate("/home");
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
 
   return (
     <div className="login-container">
@@ -54,7 +69,9 @@ const handleGoogleLogin = async () => {
 
             <p className="separator"><span>or</span></p>
 
-            <form className="login-form">
+          {/* form handler */}
+          <form className="login-form" onSubmit={handleEmailLogin}>
+          
             <InputField type="email" placeholder="Email address" icon="mail" />
             <InputField type="password" placeholder="Password" icon="lock" />
 
@@ -64,7 +81,7 @@ const handleGoogleLogin = async () => {
             </form>
 
             <p className="signup-prompt">
-            Don&apos;t have an account? <a href="#">Sign up</a>
+            Don&apos;t have an account? <a href="/register">Sign up</a>
             </p>
 
         </div>
