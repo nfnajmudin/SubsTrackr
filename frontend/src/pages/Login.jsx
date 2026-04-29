@@ -6,6 +6,7 @@ import { auth, googleProvider } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
 const handleGoogleLogin = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
@@ -19,7 +20,6 @@ const handleGoogleLogin = async () => {
     console.error(error);
   }
 };
-const navigate = useNavigate();
 
   return (
     <div className="login-container">
