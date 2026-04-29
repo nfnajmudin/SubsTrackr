@@ -6,6 +6,7 @@ import { auth } from "./config/firebase";
 import { signOut } from "firebase/auth";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
+import ProtectedRoute from "./component/ProtectedRoute";
 
 const Home = ({ onLogout }) => {
   return (
@@ -60,7 +61,11 @@ function App() {
         />
         <Route
           path="/home"
-          element={user ? <Home onLogout={handleLogout} /> : <Navigate to="/" />}
+          element={
+            <ProtectedRoute user={user}>
+              <Home onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
         />
         <Route path="/register" element={<Register />} 
         />
