@@ -206,3 +206,33 @@ body {
   outline: none;
 }
 
+/* CENTER WHOLE PAGE OF CREATE ACCOUNT */
+.register-container {
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* vertical center */
+  align-items: center;       /* horizontal center */
+  gap: 20px;
+  background-color: #0b0c2a; /* match your theme */
+}
+
+/* LOGO ABOVE CARD */
+.register-logo {
+  width: 55px;
+  height: auto;
+}
+
+/* PUTTING NAME BESIDE LOGO */
+.register-brand {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: white;
+  margin-left: -40px; 
+}
+
+.register-brand h1 {
+  font-size: 40px;
+  font-weight: 600;
+}

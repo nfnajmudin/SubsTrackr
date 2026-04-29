@@ -5,6 +5,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./config/firebase";
 import { signOut } from "firebase/auth";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const Home = ({ onLogout }) => {
   return (
@@ -61,7 +62,10 @@ function App() {
           path="/home"
           element={user ? <Home onLogout={handleLogout} /> : <Navigate to="/" />}
         />
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<Register />} 
+        />
+        <Route path="/forgot-password" element={<ForgotPassword />} 
+        />
       </Routes>
     </BrowserRouter>
   );
