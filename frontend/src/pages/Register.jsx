@@ -24,41 +24,41 @@ const Register = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="right">
-        <div className="login-card">
+    <div className="register-container">
+    <div className="register-brand">
+        <img src="/logo.png" alt="logo" className="register-logo" />
+        <h1>SubsTrackr</h1>
+    </div>
 
-          <h2 className="form-title">Create Account</h2>
+    <div className="login-card">
+        <h2 className="form-title">Create Account</h2>
 
-          <form className="login-form" onSubmit={handleSignup}>
+        <form className="login-form" onSubmit={handleSignup}>
+        <InputField
+            type="email"
+            placeholder="Email address"
+            icon="mail"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+        />
 
-            <InputField
-              type="email"
-              placeholder="Email address"
-              icon="mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+        <InputField
+            type="password"
+            placeholder="Password"
+            icon="lock"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+        />
 
-            <InputField
-              type="password"
-              placeholder="Password"
-              icon="lock"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+        <button type="submit" className="login-button">
+            Sign Up
+        </button>
+        </form>
 
-            <button type="submit" className="login-button">
-              Sign Up
-            </button>
-          </form>
-
-          <p className="signup-prompt">
-            Already have an account? <a href="/">Log in</a>
-          </p>
-
-        </div>
-      </div>
+        <p className="signup-prompt">
+        Already have an account? <a href="/">Log in</a>
+        </p>
+    </div>
     </div>
   );
 };

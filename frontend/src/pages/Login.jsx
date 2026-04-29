@@ -6,6 +6,7 @@ import { auth, googleProvider } from "../config/firebase";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
 import { useState } from "react";
+import { resetPassword } from "../services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -35,6 +36,22 @@ const Login = () => {
       console.error(error.message);
     }
   };
+
+  //FORGOT PASSWORD
+  const handleForgotPassword = async () => {
+  if (!email) {
+    alert("Please enter your email first");
+    return;
+  }
+
+  try {
+    await resetPassword(email);
+    alert("Password reset email sent!");
+  } catch (error) {
+    console.error(error.message);
+    alert("Error: " + error.message);
+  }
+};
 
   return (
     <div className="login-container">
@@ -72,10 +89,14 @@ const Login = () => {
           {/* form handler */}
           <form className="login-form" onSubmit={handleEmailLogin}>
           
-            <InputField type="email" placeholder="Email address" icon="mail" />
-            <InputField type="password" placeholder="Password" icon="lock" />
+            <InputField type="email" value={email}
+            onChange={(e) => setEmail(e.target.value)} placeholder="Email address" icon="mail" />
+            <InputField type="password" value={password}
+            onChange={(e) => setPassword(e.target.value)} placeholder="Password" icon="lock" />
 
-            <a href="#" className="forgot-password-link">Forgot password?</a>
+            <a href="/forgot-password" className="forgot-password-link">
+              Forgot password?
+            </a>
 
             <button type="submit" className="login-button">Log In</button>
             </form>
