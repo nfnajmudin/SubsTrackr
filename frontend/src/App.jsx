@@ -7,29 +7,7 @@ import { signOut } from "firebase/auth";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ProtectedRoute from "./component/ProtectedRoute";
-
-const Home = ({ onLogout }) => {
-  return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
-      <h1>Welcome, you are logged in 🎉</h1>
-
-      <button
-        onClick={onLogout}
-        style={{
-          marginTop: "20px",
-          padding: "10px 20px",
-          background: "#5F41E4",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-          borderRadius: "5px",
-        }}
-      >
-        Logout
-      </button>
-    </div>
-  );
-};
+import Home from "./pages/Home";
 
 function App() {
   const [user, setUser] = useState(null);
