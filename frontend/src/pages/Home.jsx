@@ -3,52 +3,71 @@ import { getSubscriptions } from "../services/api";
 import { auth } from "../config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import "./Home.css";
+import AddSubscriptionModal from "../component/AddSubscriptionModal";
 
 /**
  * Home Page
  * --------------------------------------------------
- * Responsible for:
- * 1. Listening to Firebase authentication state
- * 2. Fetching user-specific subscriptions from backend
- * 3. Displaying subscription data
- * 4. Handling UI states (loading, empty, data)
+ * Responsibilities:
+ * 1. Listen to Firebase authentication state
+ * 2. Fetch user-specific subscriptions from backend
+ * 3. Display subscription data
+ * 4. Manage UI states (loading, empty, populated)
+ * 5. Control modal visibility for adding subscriptions
  */
 const Home = ({ onLogout }) => {
+  /**
+   * State Management
+   * --------------------------------------------------
+   * subscriptions → stores fetched subscription data
+   * loading       → controls loading UI
+   * showModal     → controls Add Subscription modal visibility
+   */
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
   /**
-   * Effect: Runs once on component mount
+   * Fetch Subscriptions
    * --------------------------------------------------
-   * - Waits for Firebase to confirm authenticated user
-   * - Uses UID to fetch subscriptions from backend
-   * - Cleans up listener on unmount
+   * Reusable function to retrieve subscriptions
+   * for the currently authenticated user.
+   *
+   * Why reusable?
+   * → Called on initial load
+   * → Will also be used after adding a new subscription (Step 6)
+   */
+  const fetchSubscriptions = async (user) => {
+    try {
+      const data = await getSubscriptions(user.uid);
+      setSubscriptions(data);
+    } catch (error) {
+      console.error("Error fetching subscriptions:", error);
+    }
+  };
+
+  /**
+   * Effect: Authentication Listener
+   * --------------------------------------------------
+   * Runs once on component mount.
+   *
+   * Flow:
+   * 1. Wait for Firebase to confirm authenticated user
+   * 2. If user exists → fetch subscriptions
+   * 3. If no user → stop loading
+   * 4. Cleanup listener on unmount
    */
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // If no user is logged in, stop loading
       if (!user) {
-        console.warn("No authenticated user found.");
         setLoading(false);
         return;
       }
 
-      try {
-        console.log("Authenticated UID:", user.uid);
-
-        // Fetch subscriptions tied to this user
-        const data = await getSubscriptions(user.uid);
-
-        // Store result in state
-        setSubscriptions(data);
-      } catch (error) {
-        console.error("Failed to fetch subscriptions:", error);
-      } finally {
-        setLoading(false);
-      }
+      await fetchSubscriptions(user);
+      setLoading(false);
     });
 
-    // Cleanup listener when component unmounts
     return () => unsubscribe();
   }, []);
 
@@ -58,10 +77,17 @@ const Home = ({ onLogout }) => {
       <div className="header">
         <h2>Your Subscriptions</h2>
 
+      {/* ================= + ADD SUBS BUTTON ================= */}
+      <div className="headerActions">
+        <button className="addBtn" onClick={() => setShowModal(true)}>
+          +
+        </button>
+        
         {/* Logout belongs in header (global action) */}
         <button onClick={onLogout} className="logoutBtn">
           Logout
         </button>
+      </div>
       </div>
 
       {/* ================= CONTENT SECTION ================= */}
@@ -80,6 +106,25 @@ const Home = ({ onLogout }) => {
           </div>
         ))
       )}
+
+      {/* ================= MODAL SECTION ================= */}
+      {/* 
+        Render modal ONLY when showModal = true
+        This prevents unnecessary rendering and improves performance
+      */}
+
+      {/**
+        * Modal Rendering
+        * --------------------------------------------------
+        * Pass onSuccess callback so modal can trigger
+        * a data refresh after successful submission
+        */}
+        {showModal && (
+          <AddSubscriptionModal
+            onClose={() => setShowModal(false)}
+            onSuccess={() => fetchSubscriptions(auth.currentUser)}
+          />
+        )}
     </div>
   );
 };
