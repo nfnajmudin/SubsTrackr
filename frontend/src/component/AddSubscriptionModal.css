@@ -1,0 +1,83 @@
+/* ================= OVERLAY =================
+   Full-screen dark background behind modal
+   Blocks interaction with page
+=========================================== */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* ================= MODAL CONTAINER =================
+   Main white card where form lives
+=========================================== */
+.modalContent {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+}
+
+
+/* ================= HEADER =================
+   Title + close button alignment
+=========================================== */
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+
+/* ================= CLOSE BUTTON =================
+   Small "X" button top right
+=========================================== */
+.closeBtn {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+
+/* ================= FORM LAYOUT =================
+   Vertical stacking of inputs
+=========================================== */
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+/* ================= INPUT FIELDS =================
+   Shared styling for all inputs
+=========================================== */
+.modalForm input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+
+/* ================= SAVE BUTTON =================
+   Primary action button
+=========================================== */
+.saveBtn {
+  margin-top: 10px;
+  padding: 10px;
+  background: #5F41E4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

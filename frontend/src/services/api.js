@@ -25,3 +25,29 @@ export const getSubscriptions = async (userId) => {
     throw error;
   }
 };
+
+/**
+ * Create new subscription
+ * --------------------------------------------------
+ * Sends POST request to backend to store subscription
+ */
+export const createSubscription = async (data) => {
+  try {
+    const res = await fetch(`${BASE_URL}/subscriptions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to create subscription");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
+};
