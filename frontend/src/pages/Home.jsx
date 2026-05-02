@@ -3,6 +3,7 @@ import { getSubscriptions } from "../services/api";
 import { auth } from "../config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import "./Home.css";
+import AddSubscriptionModal from "../component/AddSubscriptionModal";
 
 /**
  * Home Page
@@ -17,6 +18,7 @@ const Home = ({ onLogout }) => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
+const [showModal, setShowModal] = useState(false);
   /**
    * Effect: Runs once on component mount
    * --------------------------------------------------
@@ -58,10 +60,17 @@ const Home = ({ onLogout }) => {
       <div className="header">
         <h2>Your Subscriptions</h2>
 
+      {/* ================= + ADD SUBS BUTTON ================= */}
+      <div className="headerActions">
+        <button className="addBtn" onClick={() => setShowModal(true)}>
+          +
+        </button>
+        
         {/* Logout belongs in header (global action) */}
         <button onClick={onLogout} className="logoutBtn">
           Logout
         </button>
+      </div>
       </div>
 
       {/* ================= CONTENT SECTION ================= */}
@@ -79,6 +88,15 @@ const Home = ({ onLogout }) => {
             </p>
           </div>
         ))
+      )}
+
+      {/* ================= MODAL SECTION ================= */}
+      {/* 
+        Render modal ONLY when showModal = true
+        This prevents unnecessary rendering and improves performance
+      */}
+      {showModal && (
+        <AddSubscriptionModal onClose={() => setShowModal(false)} />
       )}
     </div>
   );
