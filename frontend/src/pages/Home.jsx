@@ -71,6 +71,32 @@ const Home = ({ onLogout }) => {
     return () => unsubscribe();
   }, []);
 
+/**
+ * Determine urgency styling based on billing date
+ * --------------------------------------------------
+ * Rules:
+ * - Overdue → urgent
+ * - Within 7 days → urgent
+ */
+const getUrgencyClass = (billingDate) => {
+  const today = new Date();
+  const billDate = new Date(billingDate);
+
+  // Normalize dates (VERY important)
+  today.setHours(0, 0, 0, 0);
+  billDate.setHours(0, 0, 0, 0);
+
+  const diffTime = billDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  // 🔴 overdue OR due soon
+  if (diffDays <= 7) {
+    return "urgent";
+  }
+
+  return "";
+};
+
   return (
     <div>
       {/* ================= HEADER SECTION ================= */}
@@ -90,22 +116,45 @@ const Home = ({ onLogout }) => {
       </div>
       </div>
 
-      {/* ================= CONTENT SECTION ================= */}
-      {loading ? (
-        <p>Loading subscriptions...</p>
-      ) : subscriptions.length === 0 ? (
-        <p>No subscriptions yet</p>
-      ) : (
-        subscriptions.map((sub) => (
-          <div key={sub._id} className="card">
-            <h3>{sub.name}</h3>
-            <p>Price: ${sub.price}</p>
-            <p>
-              Billing: {new Date(sub.billingDate).toDateString()}
-            </p>
+        {/* ================= CONTENT SECTION ================= */}
+        {loading ? (
+          <p>Loading subscriptions...</p>
+        ) : subscriptions.length === 0 ? (
+          <p>No subscriptions yet</p>
+        ) : (
+          /**
+           * Subscription Grid
+           * --------------------------------------------------
+           * Displays subscriptions in card layout
+           */
+          <div className="cardGrid">
+            {subscriptions.map((sub) => (
+              <div
+                key={sub._id}
+                className={`card ${getUrgencyClass(sub.billingDate)} ${sub.color || "blue"}`}
+              >
+                {/* ================= CARD HEADER ================= */}
+                <div className="cardHeader">
+                  <h3>{sub.name}</h3>
+
+                  {/* VALUE BADGE (Great / Fair / Poor) */}
+                  <span className={`badge ${sub.value || "fair"}`}>
+                    {sub.value || "fair"}
+                  </span>
+                </div>
+
+                {/* ================= CARD BODY ================= */}
+                <p>
+                  RM {sub.price} / {sub.cycle === "yearly" ? "yr" : "mo"}
+                </p>
+
+                <p>
+                  Billing: {new Date(sub.billingDate).toDateString()}
+                </p>
+              </div>
+            ))}
           </div>
-        ))
-      )}
+        )}
 
       {/* ================= MODAL SECTION ================= */}
       {/* 

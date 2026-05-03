@@ -15,13 +15,20 @@ const AddSubscriptionModal = ({ onClose, onSuccess }) => {
 /**
  * Form State
  * --------------------------------------------------
- * Stores all input values in a single object.
- * This makes it easier to manage, validate, and send to backend.
+ * Extended to support UI enhancements:
+ * - cycle (monthly/yearly)
+ * - color (UI styling)
+ * - icon (visual identity)
+ * - value (worthiness indicator)
  */
 const [formData, setFormData] = useState({
   name: "",
   price: "",
   billingDate: "",
+  cycle: "monthly",
+  color: "blue",
+  icon: "default",
+  value: "fair",
 });
 
 /**
@@ -131,6 +138,52 @@ const [submitting, setSubmitting] = useState(false);
             onChange={handleChange}
            />
 
+        {/* ================= BILLING CYCLE ================= */}
+        <div className="formGroup">
+        <label>Cycle</label>
+        <select
+            value={formData.cycle}
+            onChange={(e) =>
+            setFormData({ ...formData, cycle: e.target.value })
+            }
+        >
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+        </select>
+        </div>
+        
+        {/* ================= COLOR PICKER ================= */}
+        <div className="formGroup">
+        <label>Color</label>
+        <div className="colorOptions">
+            {["red", "orange", "yellow", "green", "blue", "purple"].map((c) => (
+            <div
+                key={c}
+                className={`colorCircle ${formData.color === c ? "active" : ""}`}
+                style={{ background: c }}
+                onClick={() => setFormData({ ...formData, color: c })}
+            />
+            ))}
+        </div>
+        </div>
+
+        {/* ================= VALUE SELECTOR ================= */}
+        <div className="formGroup">
+        <label>Worthiness</label>
+        <div className="valueOptions">
+            {["great", "fair", "poor"].map((v) => (
+            <button
+                key={v}
+                type="button"
+                className={`valueBtn ${formData.value === v ? "active" : ""}`}
+                onClick={() => setFormData({ ...formData, value: v })}
+            >
+                {v}
+            </button>
+            ))}
+        </div>
+        </div>
+        
           {/* BILLING DATE */}
           <label>Billing Date</label>
           <input
