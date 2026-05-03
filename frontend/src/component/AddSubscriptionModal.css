@@ -81,3 +81,45 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
+/* ================= FORM GROUP ================= */
+.formGroup {
+  margin-bottom: 15px;
+}
+
+/* ================= COLOR PICKER ================= */
+.colorOptions {
+  display: flex;
+  gap: 10px;
+}
+
+.colorCircle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.colorCircle.active {
+  border: 2px solid white;
+}
+
+/* ================= VALUE SELECTOR ================= */
+.valueOptions {
+  display: flex;
+  gap: 10px;
+}
+
+.valueBtn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #ddd;
+}
+
+.valueBtn.active {
+  background: #5f41e4;
+  color: white;
+}
