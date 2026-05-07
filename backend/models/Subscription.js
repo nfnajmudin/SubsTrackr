@@ -17,6 +17,24 @@ const subscriptionSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  cycle: {
+    type: String,
+    enum: ["monthly", "yearly"],
+    default: "monthly",
+  },
+  color: {
+    type: String,
+    default: "blue",
+  },
+  icon: {
+    type: String,
+    default: "tv",
+  },
+  value: {
+    type: String,
+    enum: ["great", "fair", "poor"],
+    default: "fair",
+  },
   userId: {
     type: String, // from Firebase auth
     required: true,
