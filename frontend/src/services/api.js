@@ -51,3 +51,51 @@ export const createSubscription = async (data) => {
     throw error;
   }
 };
+
+/**
+ * Update subscription
+ * --------------------------------------------------
+ * Saves edits for one existing subscription.
+ */
+export const updateSubscription = async (id, data) => {
+  try {
+    const res = await fetch(`${BASE_URL}/subscriptions/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to update subscription");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Delete subscription
+ * --------------------------------------------------
+ * Removes one subscription by MongoDB document id.
+ */
+export const deleteSubscription = async (id) => {
+  try {
+    const res = await fetch(`${BASE_URL}/subscriptions/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to delete subscription");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("API Error:", error);
+    throw error;
+  }
+};

@@ -1,42 +1,97 @@
-import { useEffect, useState } from "react";
-import { getSubscriptions } from "../services/api";
+import { useEffect, useMemo, useState } from "react";
+import { deleteSubscription, getSubscriptions } from "../services/api";
 import { auth } from "../config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import "./Home.css";
 import AddSubscriptionModal from "../component/AddSubscriptionModal";
 
-/**
- * Home Page
- * --------------------------------------------------
- * Responsibilities:
- * 1. Listen to Firebase authentication state
- * 2. Fetch user-specific subscriptions from backend
- * 3. Display subscription data
- * 4. Manage UI states (loading, empty, populated)
- * 5. Control modal visibility for adding subscriptions
- */
+const iconMap = {
+  play: "play_circle",
+  music: "music_note",
+  cloud: "cloud",
+  card: "credit_card",
+  game: "sports_esports",
+  tv: "tv",
+  wifi: "wifi",
+  phone: "smartphone",
+};
+
+const valueLabels = {
+  great: { icon: "\u2B50", label: "Great Value" },
+  fair: { icon: "\uD83D\uDC4D", label: "Fair Value" },
+  poor: { icon: "\u26A0", label: "Poor Value" },
+};
+
+const normalizeDate = (date) => {
+  const normalized = new Date(date);
+  normalized.setHours(0, 0, 0, 0);
+  return normalized;
+};
+
+const formatCurrency = (amount) => {
+  return `RM ${Number(amount || 0).toFixed(2)}`;
+};
+
+const addMonths = (date, months) => {
+  const nextDate = new Date(date);
+  const originalDay = nextDate.getDate();
+
+  nextDate.setDate(1);
+  nextDate.setMonth(nextDate.getMonth() + months);
+
+  const lastDayOfTargetMonth = new Date(
+    nextDate.getFullYear(),
+    nextDate.getMonth() + 1,
+    0
+  ).getDate();
+
+  nextDate.setDate(Math.min(originalDay, lastDayOfTargetMonth));
+  return nextDate;
+};
+
+const addYears = (date, years) => {
+  const nextDate = new Date(date);
+  nextDate.setFullYear(nextDate.getFullYear() + years);
+  return nextDate;
+};
+
+const getNextBillingDate = (billingDate, cycle = "monthly") => {
+  const today = normalizeDate(new Date());
+  let nextDate = normalizeDate(billingDate);
+
+  if (Number.isNaN(nextDate.getTime())) return today;
+
+  while (nextDate < today) {
+    nextDate = cycle === "yearly" ? addYears(nextDate, 1) : addMonths(nextDate, 1);
+  }
+
+  return nextDate;
+};
+
+const getBillingInfo = (sub) => {
+  const nextBillingDate = getNextBillingDate(sub.billingDate, sub.cycle);
+  const today = normalizeDate(new Date());
+  const diffDays = Math.ceil((nextBillingDate - today) / (1000 * 60 * 60 * 24));
+
+  let label = `In ${diffDays} days`;
+  if (diffDays === 0) label = "Today";
+  if (diffDays === 1) label = "Tomorrow";
+
+  return {
+    date: nextBillingDate,
+    days: diffDays,
+    label,
+    isDueSoon: diffDays <= 7,
+  };
+};
+
 const Home = ({ onLogout }) => {
-  /**
-   * State Management
-   * --------------------------------------------------
-   * subscriptions → stores fetched subscription data
-   * loading       → controls loading UI
-   * showModal     → controls Add Subscription modal visibility
-   */
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [editingSubscription, setEditingSubscription] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(null);
 
-  /**
-   * Fetch Subscriptions
-   * --------------------------------------------------
-   * Reusable function to retrieve subscriptions
-   * for the currently authenticated user.
-   *
-   * Why reusable?
-   * → Called on initial load
-   * → Will also be used after adding a new subscription (Step 6)
-   */
   const fetchSubscriptions = async (user) => {
     try {
       const data = await getSubscriptions(user.uid);
@@ -46,17 +101,51 @@ const Home = ({ onLogout }) => {
     }
   };
 
-  /**
-   * Effect: Authentication Listener
-   * --------------------------------------------------
-   * Runs once on component mount.
-   *
-   * Flow:
-   * 1. Wait for Firebase to confirm authenticated user
-   * 2. If user exists → fetch subscriptions
-   * 3. If no user → stop loading
-   * 4. Cleanup listener on unmount
-   */
+  const totals = useMemo(() => {
+    return subscriptions.reduce(
+      (summary, sub) => {
+        const price = Number(sub.price || 0);
+        const isYearly = sub.cycle === "yearly";
+
+        summary.monthly += isYearly ? price / 12 : price;
+        summary.yearly += isYearly ? price : price * 12;
+
+        return summary;
+      },
+      { monthly: 0, yearly: 0 }
+    );
+  }, [subscriptions]);
+
+  const openAddModal = () => {
+    setEditingSubscription(null);
+    setShowModal(true);
+  };
+
+  const openEditModal = (subscription) => {
+    setEditingSubscription(subscription);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingSubscription(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+
+    try {
+      await deleteSubscription(pendingDelete._id);
+      setSubscriptions((prev) =>
+        prev.filter((sub) => sub._id !== pendingDelete._id)
+      );
+      setPendingDelete(null);
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete subscription. Please try again.");
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -71,112 +160,144 @@ const Home = ({ onLogout }) => {
     return () => unsubscribe();
   }, []);
 
-/**
- * Determine urgency styling based on billing date
- * --------------------------------------------------
- * Rules:
- * - Overdue → urgent
- * - Within 7 days → urgent
- */
-const getUrgencyClass = (billingDate) => {
-  const today = new Date();
-  const billDate = new Date(billingDate);
-
-  // Normalize dates (VERY important)
-  today.setHours(0, 0, 0, 0);
-  billDate.setHours(0, 0, 0, 0);
-
-  const diffTime = billDate - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  // 🔴 overdue OR due soon
-  if (diffDays <= 7) {
-    return "urgent";
-  }
-
-  return "";
-};
-
   return (
-    <div>
-      {/* ================= HEADER SECTION ================= */}
-      <div className="header">
-        <h2>Your Subscriptions</h2>
+    <main className="homePage">
+      <header className="header">
+        <h1>Your Subscriptions</h1>
 
-      {/* ================= + ADD SUBS BUTTON ================= */}
-      <div className="headerActions">
-        <button className="addBtn" onClick={() => setShowModal(true)}>
-          +
-        </button>
-        
-        {/* Logout belongs in header (global action) */}
         <button onClick={onLogout} className="logoutBtn">
           Logout
         </button>
-      </div>
-      </div>
+      </header>
 
-        {/* ================= CONTENT SECTION ================= */}
-        {loading ? (
-          <p>Loading subscriptions...</p>
-        ) : subscriptions.length === 0 ? (
-          <p>No subscriptions yet</p>
-        ) : (
-          /**
-           * Subscription Grid
-           * --------------------------------------------------
-           * Displays subscriptions in card layout
-           */
-          <div className="cardGrid">
-            {subscriptions.map((sub) => (
-              <div
+      <section className="summaryGrid" aria-label="Subscription spending summary">
+        <div className="summaryPanel">
+          <span>Total Monthly</span>
+          <strong>{formatCurrency(totals.monthly)}</strong>
+        </div>
+
+        <div className="summaryPanel">
+          <span>Total Yearly</span>
+          <strong>{formatCurrency(totals.yearly)}</strong>
+        </div>
+      </section>
+
+      {loading ? (
+        <p className="statusText">Loading subscriptions...</p>
+      ) : subscriptions.length === 0 ? (
+        <p className="statusText">No subscriptions yet</p>
+      ) : (
+        <section className="cardGrid" aria-label="Subscriptions">
+          {subscriptions.map((sub) => {
+            const billing = getBillingInfo(sub);
+            const value = valueLabels[sub.value] || valueLabels.fair;
+
+            return (
+              <article
                 key={sub._id}
-                className={`card ${getUrgencyClass(sub.billingDate)} ${sub.color || "blue"}`}
+                className={`card ${billing.isDueSoon ? "urgent" : ""} ${sub.color || "blue"}`}
               >
-                {/* ================= CARD HEADER ================= */}
-                <div className="cardHeader">
-                  <h3>{sub.name}</h3>
+                <div className="cardActions">
+                  <button
+                    className="cardActionBtn"
+                    type="button"
+                    aria-label={`Edit ${sub.name}`}
+                    title="Edit subscription"
+                    onClick={() => openEditModal(sub)}
+                  >
+                    <span className="material-symbols-rounded">edit</span>
+                  </button>
 
-                  {/* VALUE BADGE (Great / Fair / Poor) */}
-                  <span className={`badge ${sub.value || "fair"}`}>
-                    {sub.value || "fair"}
+                  <button
+                    className="cardActionBtn danger"
+                    type="button"
+                    aria-label={`Delete ${sub.name}`}
+                    title="Delete subscription"
+                    onClick={() => setPendingDelete(sub)}
+                  >
+                    <span className="material-symbols-rounded">delete</span>
+                  </button>
+                </div>
+
+                <div className="cardTop">
+                  <div className="subscriptionIcon">
+                    <span className="material-symbols-rounded">
+                      {iconMap[sub.icon] || iconMap.tv}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h2>{sub.name}</h2>
+                    <p>
+                      Price: {formatCurrency(sub.price)} /{" "}
+                      {sub.cycle === "yearly" ? "yr" : "mo"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="cardMeta">
+                  <span className={`valueBadge ${sub.value || "fair"}`}>
+                    <span>{value.icon}</span>
+                    {value.label}
+                  </span>
+
+                  <span className={`daysBadge ${billing.isDueSoon ? "dueSoon" : ""}`}>
+                    {billing.label}
                   </span>
                 </div>
 
-                {/* ================= CARD BODY ================= */}
-                <p>
-                  RM {sub.price} / {sub.cycle === "yearly" ? "yr" : "mo"}
+                <p className={`billingText ${billing.isDueSoon ? "dueSoon" : ""}`}>
+                  Billing: {billing.date.toDateString()}
                 </p>
+              </article>
+            );
+          })}
+        </section>
+      )}
 
-                <p>
-                  Billing: {new Date(sub.billingDate).toDateString()}
-                </p>
-              </div>
-            ))}
+      <button
+        className="floatingAddBtn"
+        type="button"
+        aria-label="Add subscription"
+        onClick={openAddModal}
+      >
+        +
+      </button>
+
+      {showModal && (
+        <AddSubscriptionModal
+          subscription={editingSubscription}
+          onClose={closeModal}
+          onSuccess={() => fetchSubscriptions(auth.currentUser)}
+        />
+      )}
+
+      {pendingDelete && (
+        <div className="confirmOverlay" role="dialog" aria-modal="true">
+          <div className="confirmDialog">
+            <div className="confirmIcon">
+              <span className="material-symbols-rounded">delete</span>
+            </div>
+
+            <h2>Delete subscription?</h2>
+            <p>
+              This will permanently remove {pendingDelete.name} from your
+              subscription list.
+            </p>
+
+            <div className="confirmActions">
+              <button type="button" onClick={() => setPendingDelete(null)}>
+                Cancel
+              </button>
+              <button type="button" className="danger" onClick={confirmDelete}>
+                Delete
+              </button>
+            </div>
           </div>
-        )}
-
-      {/* ================= MODAL SECTION ================= */}
-      {/* 
-        Render modal ONLY when showModal = true
-        This prevents unnecessary rendering and improves performance
-      */}
-
-      {/**
-        * Modal Rendering
-        * --------------------------------------------------
-        * Pass onSuccess callback so modal can trigger
-        * a data refresh after successful submission
-        */}
-        {showModal && (
-          <AddSubscriptionModal
-            onClose={() => setShowModal(false)}
-            onSuccess={() => fetchSubscriptions(auth.currentUser)}
-          />
-        )}
-    </div>
+        </div>
+      )}
+    </main>
   );
 };
 
 export default Home;
-
