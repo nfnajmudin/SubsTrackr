@@ -1,7 +1,6 @@
 import "./AddSubscriptionModal.css";
 import { useState } from "react";
 import { createSubscription, updateSubscription } from "../services/api";
-import { auth } from "../config/firebase";
 
 const initialFormData = {
   name: "",
@@ -91,12 +90,8 @@ const AddSubscriptionModal = ({ subscription, onClose, onSuccess }) => {
     try {
       setSubmitting(true);
 
-      const userId = auth.currentUser?.uid;
-      if (!userId) throw new Error("User not authenticated");
-
       const payload = {
         ...formData,
-        userId,
         price: parseFloat(formData.price),
       };
 

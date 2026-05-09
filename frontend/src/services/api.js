@@ -60,11 +60,11 @@ export const getSubscriptions = async () => {
  */
 export const createSubscription = async (data) => {
   try {
+    const headers = await getAuthHeaders();
+
     const res = await fetch(`${BASE_URL}/subscriptions`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(data),
     });
 
@@ -86,11 +86,11 @@ export const createSubscription = async (data) => {
  */
 export const updateSubscription = async (id, data) => {
   try {
+    const headers = await getAuthHeaders();
+
     const res = await fetch(`${BASE_URL}/subscriptions/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(data),
     });
 
@@ -112,8 +112,11 @@ export const updateSubscription = async (id, data) => {
  */
 export const deleteSubscription = async (id) => {
   try {
+    const headers = await getAuthHeaders();
+
     const res = await fetch(`${BASE_URL}/subscriptions/${id}`, {
       method: "DELETE",
+      headers,
     });
 
     if (!res.ok) {
