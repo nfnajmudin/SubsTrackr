@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 /**
  * Get Firebase Auth Headers
  * --------------------------------------------------
@@ -38,7 +38,7 @@ export const getSubscriptions = async () => {
     /**
      * Call protected endpoint
      */
-    const res = await fetch(`${BASE_URL}/subscriptions`, {
+    const res = await fetch(`${BASE_URL}/api/subscriptions`, {
       headers,
     });
 
@@ -62,7 +62,7 @@ export const createSubscription = async (data) => {
   try {
     const headers = await getAuthHeaders();
 
-    const res = await fetch(`${BASE_URL}/subscriptions`, {
+    const res = await fetch(`${BASE_URL}/api/subscriptions`, {
       method: "POST",
       headers,
       body: JSON.stringify(data),
@@ -88,7 +88,7 @@ export const updateSubscription = async (id, data) => {
   try {
     const headers = await getAuthHeaders();
 
-    const res = await fetch(`${BASE_URL}/subscriptions/${id}`, {
+    const res = await fetch(`${BASE_URL}/api/subscriptions/${id}`, {
       method: "PUT",
       headers,
       body: JSON.stringify(data),
@@ -114,7 +114,7 @@ export const deleteSubscription = async (id) => {
   try {
     const headers = await getAuthHeaders();
 
-    const res = await fetch(`${BASE_URL}/subscriptions/${id}`, {
+    const res = await fetch(`${BASE_URL}/api/subscriptions/${id}`, {
       method: "DELETE",
       headers,
     });
