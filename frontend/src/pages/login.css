@@ -96,6 +96,7 @@ body {
 .social-login {
   display: flex;
   gap: 1rem;
+  justify-content: center;
 }
 
 .social-button {
@@ -113,11 +114,12 @@ body {
 .login-container .social-login {
     display: flex;
     gap: 1.31rem;
+    justify-content: center;
 }
 
 .social-login .social-button{
     display: flex;
-    width: 100%;
+    width: min(100%, 220px);
     gap: 0.81rem;
     cursor: pointer;
     font-size: 1rem;
