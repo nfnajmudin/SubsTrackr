@@ -39,8 +39,8 @@ const getMongoUri = () => {
 
     const databaseName = getDatabaseNameFromMongoUri(testUri);
 
-    if (!databaseName || !databaseName.toLowerCase().includes("test")) {
-      throw new Error("MONGO_URI_TEST must point to a dedicated test database");
+    if (!databaseName || !databaseName.toLowerCase().endsWith("_test")) {
+      throw new Error("MONGO_URI_TEST database name must end with _test");
     }
 
     return testUri;
