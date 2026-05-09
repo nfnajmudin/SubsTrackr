@@ -1,19 +1,46 @@
 const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api";
+/**
+ * Get Firebase Auth Headers
+ * --------------------------------------------------
+ * - Retrieves current user token
+ * - Attaches it as Authorization header
+ */
+import { auth } from "../config/firebase";
+
+const getAuthHeaders = async () => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const token = await user.getIdToken();
+
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+};
 
 /**
- * Fetch subscriptions for a specific user
- * @param {string} userId - Firebase UID of logged-in user
+ * Fetch subscriptions (authenticated)
+ * --------------------------------------------------
+ * - Uses Firebase token instead of userId
+ * - Backend extracts user from token
  */
-export const getSubscriptions = async (userId) => {
+export const getSubscriptions = async () => {
   try {
-    if (!userId) {
-      throw new Error("userId is required");
-    }
+    /**
+     * Get auth headers (contains Bearer token)
+     */
+    const headers = await getAuthHeaders();
 
-    const url = `${BASE_URL}/subscriptions?userId=${userId}`;
-    console.log("Fetching:", url); // debug
-
-    const res = await fetch(url);
+    /**
+     * Call protected endpoint
+     */
+    const res = await fetch(`${BASE_URL}/subscriptions`, {
+      headers,
+    });
 
     if (!res.ok) {
       throw new Error("Failed to fetch subscriptions");

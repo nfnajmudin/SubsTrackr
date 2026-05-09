@@ -1,15 +1,23 @@
 import express from "express";
 import Subscription from "../models/Subscription.js";
+import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 /**
  * @route   POST /api/subscriptions
  * @desc    Create a new subscription
+ * --------------------------------------------------
+ * Security:
+ * - userId is NOT taken from frontend
+ * - extracted from verified Firebase token
  */
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
   try {
-    const { name, price, billingDate, userId, cycle, color, icon, value } = req.body;
+    const { name, price, billingDate, cycle, color, icon, value } = req.body;
+
+    // ✅ Secure user identification
+    const userId = req.user.uid;
 
     const newSubscription = new Subscription({
       name,
@@ -32,18 +40,16 @@ router.post("/", async (req, res) => {
 
 /**
  * @route   GET /api/subscriptions
- * @desc    Get all subscriptions
+ * @desc    Get all subscriptions for logged-in user
+ * --------------------------------------------------
+ * Security:
+ * - userId is NOT read from query
+ * - always derived from token
  */
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
-    const { userId } = req.query;
+    const userId = req.user.uid;
 
-    // Validation check
-    if (!userId) {
-      return res.status(400).json({ message: "userId is required" });
-    }
-    
-    // Filter by userId
     const subscriptions = await Subscription.find({ userId });
 
     res.status(200).json(subscriptions);
@@ -55,13 +61,18 @@ router.get("/", async (req, res) => {
 /**
  * @route   PUT /api/subscriptions/:id
  * @desc    Update a subscription
+ * --------------------------------------------------
+ * Security:
+ * - Optional improvement: ensure user owns the subscription
  */
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, async (req, res) => {
   try {
     const { name, price, billingDate, cycle, color, icon, value } = req.body;
 
-    const updatedSubscription = await Subscription.findByIdAndUpdate(
-      req.params.id,
+    const userId = req.user.uid;
+
+    const updatedSubscription = await Subscription.findOneAndUpdate(
+      { _id: req.params.id, userId }, // 🔒 ensures ownership
       { name, price, billingDate, cycle, color, icon, value },
       { new: true, runValidators: true }
     );
@@ -79,10 +90,18 @@ router.put("/:id", async (req, res) => {
 /**
  * @route   DELETE /api/subscriptions/:id
  * @desc    Delete a subscription
+ * --------------------------------------------------
+ * Security:
+ * - ensures user can only delete their own data
  */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
   try {
-    const deletedSubscription = await Subscription.findByIdAndDelete(req.params.id);
+    const userId = req.user.uid;
+
+    const deletedSubscription = await Subscription.findOneAndDelete({
+      _id: req.params.id,
+      userId,
+    });
 
     if (!deletedSubscription) {
       return res.status(404).json({ message: "Subscription not found" });
