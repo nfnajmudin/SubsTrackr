@@ -94,7 +94,7 @@ const Home = ({ onLogout }) => {
 
   const fetchSubscriptions = async (user) => {
     try {
-      const data = await getSubscriptions(user.uid);
+      const data = await getSubscriptions();
       setSubscriptions(data);
     } catch (error) {
       console.error("Error fetching subscriptions:", error);

@@ -4,27 +4,23 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-
   "scripts": {
     "test": "set NODE_OPTIONS=--experimental-vm-modules && jest"
   },
-
   "keywords": [],
   "author": "",
   "license": "ISC",
-
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "firebase-admin": "^13.9.0",
     "mongoose": "^9.6.1"
   },
-
   "devDependencies": {
     "jest": "^30.4.0",
     "supertest": "^7.2.2"
   },
-
   "jest": {
     "testEnvironment": "node"
   }
