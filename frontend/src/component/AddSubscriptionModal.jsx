@@ -47,11 +47,7 @@ const formatDateForInput = (date) => {
   const parsedDate = new Date(date);
   if (Number.isNaN(parsedDate.getTime())) return "";
 
-  const year = parsedDate.getFullYear();
-  const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
-  const day = String(parsedDate.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
+  return parsedDate.toISOString().slice(0, 10);
 };
 
 const getInitialData = (subscription) => {
