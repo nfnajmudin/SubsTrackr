@@ -7,6 +7,52 @@ import subscriptionRoutes from "./routes/subscriptionRoutes.js";
 dotenv.config();
 const app = express();
 
+const getDatabaseNameFromMongoUri = (mongoUri) => {
+  const uriWithoutOptions = mongoUri.split("?")[0];
+  const protocolIndex = uriWithoutOptions.indexOf("://");
+
+  if (protocolIndex === -1) {
+    return "";
+  }
+
+  const uriAfterProtocol = uriWithoutOptions.slice(protocolIndex + 3);
+  const uriAfterAuth = uriAfterProtocol.includes("@")
+    ? uriAfterProtocol.slice(uriAfterProtocol.lastIndexOf("@") + 1)
+    : uriAfterProtocol;
+
+  const databaseStartIndex = uriAfterAuth.indexOf("/");
+
+  if (databaseStartIndex === -1) {
+    return "";
+  }
+
+  return decodeURIComponent(uriAfterAuth.slice(databaseStartIndex + 1).trim());
+};
+
+const getMongoUri = () => {
+  if (process.env.NODE_ENV === "test") {
+    const testUri = process.env.MONGO_URI_TEST;
+
+    if (!testUri) {
+      throw new Error("MONGO_URI_TEST is required when NODE_ENV=test");
+    }
+
+    const databaseName = getDatabaseNameFromMongoUri(testUri);
+
+    if (!databaseName || !databaseName.toLowerCase().includes("test")) {
+      throw new Error("MONGO_URI_TEST must point to a dedicated test database");
+    }
+
+    return testUri;
+  }
+
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI is required");
+  }
+
+  return process.env.MONGO_URI;
+};
+
 /**
  * Middleware Configuration
  * - cors: allows requests from frontend (React)
@@ -23,9 +69,12 @@ app.use("/api/subscriptions", subscriptionRoutes);
 /**
  * MongoDB Connection
  */
-mongoose.connect(process.env.MONGO_URI)
+export const dbConnection = mongoose.connect(getMongoUri())
   .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error(err));
+  .catch((err) => {
+    console.error(err);
+    throw err;
+  });
   
 /**
  * Health Check Route
