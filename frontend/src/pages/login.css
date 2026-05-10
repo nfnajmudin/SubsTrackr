@@ -238,3 +238,170 @@ body {
   font-size: 40px;
   font-weight: 600;
 }
+
+/* =========================================================
+   MOBILE LOGIN PAGE
+   Screens: tablets + phones
+========================================================= */
+@media (max-width: 768px) {
+
+  /* ======================================================
+     MAIN LAYOUT
+  ====================================================== */
+  .login-container {
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ======================================================
+     HERO / LEFT SECTION
+  ====================================================== */
+  .left {
+    padding: 24px 22px 12px;
+    max-width: 100%;
+  }
+
+  /* Brand row (logo + SubsTrackr) */
+  .brand {
+    margin-left: -8px;
+    margin-bottom: 0;
+    gap: 2px;
+    align-items: center;
+  }
+
+  /* Logo image */
+  .logo-img {
+    width: 52px;
+    height: 52px;
+  }
+
+  /* SubsTrackr text */
+  .brand h1 {
+    font-size: 30px;
+    font-weight: 700;
+  }
+
+  /* Main hero heading */
+  .left h2 {
+    margin-top: 18px;
+    margin-bottom: 18px;
+
+    font-size: 34px;
+    line-height: 1.15;
+
+    max-width: 340px;
+  }
+
+  /* Purple word */
+  .left span {
+    display: inline;
+  }
+
+  /* Hero description */
+  .left p {
+    margin-top: 0;
+
+    font-size: 17px;
+    line-height: 1.5;
+
+    max-width: 340px;
+  }
+
+  /* ======================================================
+     RIGHT SECTION / LOGIN AREA
+  ====================================================== */
+  .right {
+    padding: 0px 65px 150px;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  /* ======================================================
+     LOGIN CARD
+  ====================================================== */
+  .login-card {
+    width: 100%;
+    max-width: 300px;
+    padding: 1.2rem 1rem;
+    border-radius: 10px;
+    margin-top: -10px;
+    box-sizing: border-box;
+  }
+
+  /* Login title */
+  .form-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ======================================================
+     GOOGLE BUTTON
+  ====================================================== */
+  .social-login .social-button {
+    font-size: 1rem;
+
+    padding: 0.7rem 0;
+
+    border-radius: 10px;
+  }
+
+  /* Divider line */
+  .separator {
+    margin: 0.8rem 0;
+  }
+
+  /* ======================================================
+     INPUT FIELDS
+  ====================================================== */
+  .input-wrapper {
+    margin-bottom: 10px;
+  }
+
+  .input-field {
+    height: 50px;
+
+    font-size: 15px;
+
+    border-radius: 10px;
+  }
+
+    /* INPUT FIELD */
+    .input-field {
+      width: 100%;
+      height: 44px;
+
+      box-sizing: border-box;
+
+      font-size: 14px;
+    }
+  /* ======================================================
+     LOGIN BUTTON
+  ====================================================== */
+  .login-button {
+    height: 46px;
+
+    margin-top: 8px;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* Forgot password */
+  .forgot-password-link {
+    font-size: 14px;
+  }
+
+  /* Sign up text */
+  .signup-prompt {
+    margin-top: 12px;
+
+    font-size: 15px;
+
+    text-align: center;
+  }
+
+}
